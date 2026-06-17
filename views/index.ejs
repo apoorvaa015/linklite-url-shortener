@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkLite - URL Shortener</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f4f6f9; color: #1a1a2e; }
+
+        /* Navbar */
+        .nav { display: flex; align-items: center; gap: 10px; padding: 14px 32px; background: #fff; border-bottom: 1px solid #e8eaed; }
+        .nav-logo { font-size: 17px; font-weight: 600; color: #1a1a2e; display: flex; align-items: center; gap: 10px; }
+        .logo-icon { width: 30px; height: 30px; border-radius: 8px; background: #378ADD; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 15px; }
+
+        /* Page */
+        .page { padding: 32px 32px; max-width: 940px; margin: 0 auto; }
+        .section-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #888; margin-bottom: 10px; }
+
+        /* Input row */
+        .input-row { display: flex; gap: 10px; margin-bottom: 32px; }
+        .input-row input { flex: 1; height: 42px; padding: 0 16px; border: 1px solid #dde1e7; border-radius: 10px; background: #fff; font-size: 14px; color: #1a1a2e; outline: none; transition: border-color 0.15s, box-shadow 0.15s; }
+        .input-row input:focus { border-color: #378ADD; box-shadow: 0 0 0 3px rgba(55,138,221,0.12); }
+        .input-row input::placeholder { color: #aaa; }
+        .btn-primary { height: 42px; padding: 0 20px; background: #378ADD; color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap; display: flex; align-items: center; gap: 7px; transition: background 0.15s; }
+        .btn-primary:hover { background: #185FA5; }
+
+        /* Stats */
+        .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 28px; }
+        .stat-card { background: #fff; border: 1px solid #e8eaed; border-radius: 12px; padding: 16px 20px; }
+        .stat-label { font-size: 12px; color: #888; margin-bottom: 6px; }
+        .stat-val { font-size: 24px; font-weight: 600; color: #1a1a2e; }
+        .stat-val.small { font-size: 16px; }
+        .stat-sub { font-size: 11px; color: #aaa; margin-top: 3px; }
+
+        /* Table card */
+        .card { background: #fff; border: 1px solid #e8eaed; border-radius: 14px; overflow: hidden; }
+        .card-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid #e8eaed; }
+        .card-title { font-size: 14px; font-weight: 600; color: #1a1a2e; }
+        .search-wrap { position: relative; }
+        .search-wrap i { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 15px; color: #aaa; pointer-events: none; }
+        .search-wrap input { height: 34px; padding: 0 12px 0 32px; border: 1px solid #dde1e7; border-radius: 8px; background: #f8f9fb; font-size: 13px; color: #1a1a2e; outline: none; width: 210px; transition: border-color 0.15s; }
+        .search-wrap input:focus { border-color: #378ADD; background: #fff; }
+
+        /* Table */
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th { font-size: 11px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.05em; padding: 11px 20px; text-align: left; border-bottom: 1px solid #e8eaed; background: #fafbfc; }
+        td { padding: 13px 20px; border-bottom: 1px solid #f0f2f5; color: #1a1a2e; vertical-align: middle; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #f8f9fb; }
+
+        /* Cell styles */
+        .url-full { color: #555; max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; text-decoration: none; font-size: 13px; }
+        .url-full:hover { color: #378ADD; }
+        .short-link { color: #378ADD; font-weight: 500; text-decoration: none; font-size: 13px; }
+        .short-link:hover { text-decoration: underline; }
+        .badge-clicks { display: inline-flex; align-items: center; gap: 5px; background: #E6F1FB; color: #0C447C; font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 99px; }
+        .date-cell { color: #888; font-size: 12px; }
+        .never-tag { color: #bbb; font-size: 12px; font-style: italic; }
+
+        /* Copy button */
+        .copy-btn { height: 28px; padding: 0 10px; font-size: 12px; border: 1px solid #dde1e7; border-radius: 7px; background: transparent; color: #666; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; margin-left: 8px; transition: border-color 0.15s, color 0.15s; }
+        .copy-btn:hover { border-color: #378ADD; color: #378ADD; }
+        .copy-btn.copied { border-color: #3B6D11; color: #3B6D11; }
+
+        .delete-btn {
+    height: 28px;
+    padding: 0 10px;
+    font-size: 12px;
+    border: 1px solid #f3c2c2;
+    border-radius: 7px;
+    background: transparent;
+    color: #d9534f;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.15s;
+}
+
+.delete-btn:hover {
+    background: #d9534f;
+    color: white;
+}
+
+        /* Empty state */
+        .empty-row td { text-align: center; color: #aaa; padding: 40px; font-size: 14px; }
+
+        /* Footer */
+        footer { font-size: 12px; color: #aaa; text-align: center; padding: 28px 0 10px; }
+    </style>
+</head>
+<body>
+
+<nav class="nav">
+    <div class="nav-logo">
+        <div class="logo-icon"><i class="ti ti-link"></i></div>
+        LinkLite
+    </div>
+</nav>
+
+<div class="page">
+
+    <p class="section-label">New short link</p>
+    <form action="/shortUrls" method="POST" class="input-row">
+        <input
+            required
+            type="url"
+            name="fullUrl"
+            id="fullUrl"
+            placeholder="Paste a long URL here…">
+        <button class="btn-primary" type="submit">
+            <i class="ti ti-scissors"></i> Shorten
+        </button>
+    </form>
+    <% if (error) { %>
+    <div style="
+        margin-bottom: 24px;
+        padding: 12px 16px;
+        background: #FDECEC;
+        border: 1px solid #F5C2C7;
+        color: #B42318;
+        border-radius: 10px;
+        font-size: 14px;
+    ">
+        <%= error %>
+    </div>
+<% } %>
+
+    <!-- Stats -->
+    <div class="stats-row">
+        <div class="stat-card">
+            <div class="stat-label">Total links</div>
+            <div class="stat-val"><%= shortUrls.length %></div>
+            <div class="stat-sub">all time</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Total clicks</div>
+            <div class="stat-val"><%= shortUrls.reduce((s, u) => s + u.clicks, 0) %></div>
+            <div class="stat-sub">across all links</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Top link</div>
+            <div class="stat-val small">
+                <% 
+                    const top = shortUrls.reduce((best, u) => u.clicks > (best ? best.clicks : -1) ? u : best, null);
+                %>
+                <%= top ? ('/' + top.short) : '—' %>
+            </div>
+            <div class="stat-sub">most clicks</div>
+        </div>
+    </div>
+
+    <!-- Table card -->
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title">All links</span>
+            <div class="search-wrap">
+                <i class="ti ti-search"></i>
+                <input type="text" id="search" placeholder="Search…" oninput="filterTable()">
+            </div>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Original URL</th>
+                    <th>Short link</th>
+                    <th>Clicks</th>
+                    <th>Created</th>
+                    <th>Last accessed</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="urlTableBody">
+                <% if (shortUrls.length === 0) { %>
+                <tr class="empty-row">
+                    <td colspan="6">No links yet — paste a URL above to get started.</td>
+                </tr>
+                <% } %>
+                <% shortUrls.forEach(shortUrl => { %>
+                <tr>
+                    <td>
+                        <a class="url-full" href="<%= shortUrl.full %>" target="_blank" title="<%= shortUrl.full %>">
+                            <%= shortUrl.full %>
+                        </a>
+                    </td>
+                    <td>
+                        <a class="short-link" href="/<%= shortUrl.short %>">/<%= shortUrl.short %></a>
+                        <button class="copy-btn" onclick="copyLink('<%= shortUrl.short %>', this)">
+                            <i class="ti ti-copy"></i> Copy
+                        </button>
+                    </td>
+                    <td>
+                        <span class="badge-clicks">
+                            <i class="ti ti-mouse"></i>
+                            <%= shortUrl.clicks %>
+                        </span>
+                    </td>
+                    <td class="date-cell"><%= shortUrl.created_at || '—' %></td>
+                    <td>
+                        <% if (shortUrl.last_accessed) { %>
+                            <span class="date-cell"><%= shortUrl.last_accessed %></span>
+                        <% } else { %>
+                            <span class="never-tag">Never</span>
+                        <% } %>
+                    </td>
+                    <td>
+    <form
+        action="/delete/<%= shortUrl.id %>"
+        method="POST"
+        onsubmit="return confirm('Delete this link?');"
+        style="display:inline;">
+
+        <button class="delete-btn" type="submit">
+            <i class="ti ti-trash"></i> Delete
+        </button>
+
+    </form>
+</td>
+                </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+
+    <footer>Built with Node.js, Express &amp; SQLite</footer>
+</div>
+
+<script>
+    function copyLink(shortCode, btn) {
+        const fullLink = window.location.origin + '/' + shortCode;
+        navigator.clipboard.writeText(fullLink)
+            .then(() => {
+                btn.innerHTML = '<i class="ti ti-check"></i> Copied';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.innerHTML = '<i class="ti ti-copy"></i> Copy';
+                    btn.classList.remove('copied');
+                }, 1500);
+            })
+            .catch(() => alert('Failed to copy'));
+    }
+
+    function filterTable() {
+        const q = document.getElementById('search').value.toLowerCase();
+        document.querySelectorAll('#urlTableBody tr').forEach(row => {
+            row.style.display = row.innerText.toLowerCase().includes(q) ? '' : 'none';
+        });
+    }
+</script>
+
+</body>
+</html>
