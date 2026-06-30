@@ -28,7 +28,7 @@ https://linklite-url-shortener.onrender.com
 ## Installation
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/apoorvaa015/linklite-url-shortener.git
 cd linklite-url-shortener
 npm install
 node server.js
